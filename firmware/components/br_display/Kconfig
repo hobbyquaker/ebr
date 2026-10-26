@@ -1,0 +1,153 @@
+menu "Status display (ST7789)"
+
+    config BR_DISPLAY_ENABLED
+        bool "Status display"
+        default y
+        help
+            A 240x320 ST7789 SPI display (GMT020-02-7P: GND VCC SCL SDA RES DC CS, no BLK) in landscape,
+            showing the border router's state. See notes/hardware-setup.md for the wiring.
+
+    if BR_DISPLAY_ENABLED
+
+        comment "Pins: defaults are the hardware note's plan on the Waveshare ESP32-P4-ETH header (P1)"
+
+        config BR_DISPLAY_PIN_SCLK
+            int "SCL (SPI clock) GPIO"
+            default 32
+
+        config BR_DISPLAY_PIN_MOSI
+            int "SDA (SPI data) GPIO"
+            default 33
+
+        config BR_DISPLAY_PIN_RST
+            int "RES (reset) GPIO, -1 if not connected"
+            default 47
+
+        config BR_DISPLAY_PIN_DC
+            int "DC (data/command) GPIO"
+            default 48
+
+        config BR_DISPLAY_PIN_CS
+            int "CS (chip select) GPIO, -1 if CS is tied to GND or the module has none"
+            default 27
+            help
+                Modules with a CS pin: best on a GPIO (SPI mode 0). Tied to GND the display is always selected,
+                which works on a bus of its own but usually needs SPI mode 3.
+
+        config BR_DISPLAY_PIN_PWR
+            int "GPIO switching the module's VCC (high-side switch), -1 if VCC is wired to 3V3"
+            default 46
+            help
+                For modules without a BLK pin: a P-MOSFET or PNP between 3V3 and the module's VCC (hardware note,
+                "Display off by default"). Off cuts the whole module; the signal lines are pulled low first so the
+                module is not powered through them, and on wake the ST7789 is reset and set up again.
+
+        config BR_DISPLAY_PWR_ACTIVE_LOW
+            bool "The module is powered when the GPIO is low"
+            default y
+            depends on BR_DISPLAY_PIN_PWR >= 0
+            help
+                Set with a P-MOSFET or PNP high-side switch (GPIO low = switch on).
+
+        config BR_DISPLAY_PIN_BL
+            int "BLK (backlight) GPIO, -1 if wired to 3V3 or the module has none"
+            default -1
+
+        config BR_DISPLAY_BRIGHTNESS
+            int "Backlight brightness in percent"
+            range 1 100
+            default 80
+            depends on BR_DISPLAY_PIN_BL >= 0
+
+        config BR_DISPLAY_BL_ACTIVE_LOW
+            bool "Backlight is on when the GPIO is low"
+            default n
+            depends on BR_DISPLAY_PIN_BL >= 0
+            help
+                Set this with the PNP high-side switch of the hardware note (GPIO low = transistor on).
+
+        config BR_DISPLAY_ON_SECONDS
+            int "Display stays on this many seconds after boot or a button press (0 = always on)"
+            default 300
+            help
+                Afterwards the backlight goes off and the panel sleeps; any button wakes it. Without buttons the
+                display would stay dark until the next boot — set 0 then.
+
+        comment "Buttons: each between its GPIO and GND (internal pull-up), -1 for none"
+        comment "Not the BOOT key: on the ESP32-P4-ETH it is GPIO35, an Ethernet pin"
+
+        config BR_DISPLAY_PIN_BTN_SELECT
+            int "SELECT button GPIO (the screen's action)"
+            default 15
+
+        config BR_DISPLAY_PIN_BTN_BACK
+            int "BACK button GPIO (back to the status screen)"
+            default 18
+
+        config BR_DISPLAY_PIN_BTN_PREV
+            int "PREV button GPIO (previous screen)"
+            default 17
+
+        config BR_DISPLAY_PIN_BTN_NEXT
+            int "NEXT button GPIO (next screen)"
+            default 16
+
+        config BR_DISPLAY_LOG_BUTTON_LEVELS
+            bool "Log the raw button input levels on every change (wiring check)"
+            default n
+
+        config BR_DISPLAY_RESET_HOLD_MS
+            int "Factory reset on the device page: hold SELECT this long (ms)"
+            range 2000 30000
+            default 5000
+
+        config BR_DISPLAY_HAS_BUTTONS
+            bool
+            default y if BR_DISPLAY_PIN_BTN_SELECT >= 0 || BR_DISPLAY_PIN_BTN_BACK >= 0 || BR_DISPLAY_PIN_BTN_PREV >= 0 || BR_DISPLAY_PIN_BTN_NEXT >= 0
+            default n
+
+        config BR_DISPLAY_PAGE_SECONDS
+            int "Without buttons: seconds per screen (0 = status screen only)"
+            default 10
+            depends on !BR_DISPLAY_HAS_BUTTONS
+
+        config BR_DISPLAY_RADIO_CHIP
+            string "Name of the radio chip on the display (when esp-thread-br's RCP target is not set)"
+            default "H2"
+
+        comment "Panel"
+
+        config BR_DISPLAY_SPI_MHZ
+            int "SPI clock in MHz"
+            range 1 80
+            default 40
+
+        config BR_DISPLAY_SPI_MODE
+            int "SPI mode (0 with CS on a GPIO, 3 without CS)"
+            range 0 3
+            default 0 if BR_DISPLAY_PIN_CS >= 0
+            default 3
+
+        config BR_DISPLAY_INVERT_COLORS
+            bool "Invert colours (most ST7789 IPS modules need it)"
+            default y
+
+        config BR_DISPLAY_BGR
+            bool "BGR pixel order"
+            default n
+
+        config BR_DISPLAY_SWAP_XY
+            bool "Swap X/Y (landscape)"
+            default y
+
+        config BR_DISPLAY_MIRROR_X
+            bool "Mirror X"
+            default y
+
+        config BR_DISPLAY_MIRROR_Y
+            bool "Mirror Y"
+            default n
+
+    endif
+
+endmenu

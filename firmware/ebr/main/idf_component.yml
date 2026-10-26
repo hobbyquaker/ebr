@@ -1,0 +1,17 @@
+dependencies:
+  espressif/esp_rcp_update:
+    version: "~1.7.0"
+  espressif/mdns:
+    version: "^1.0.0"
+  br_display:
+    path: ../../components/br_display
+  protocol_examples_common:
+    path: ${IDF_PATH}/examples/common_components/protocol_examples_common
+  # The Matter SDK depends on these for every P4 (Wi-Fi and BLE from a co-processor over SDIO/SPI). Not on this
+  # board: no Wi-Fi, BLE from the H2 over UART, and esp_hosted would claim GPIO14-19 (the buttons).
+  espressif/esp_hosted:
+    version: "*"
+    override_path: "../stubs/esp_hosted"
+  espressif/esp_wifi_remote:
+    version: "*"
+    override_path: "../stubs/esp_wifi_remote"

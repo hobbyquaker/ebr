@@ -1,0 +1,2 @@
+version: "99.0.0"
+description: "Empty stand-in: the Matter SDK pulls esp_wifi_remote in for every ESP32-P4; this board has no Wi-Fi co-processor (BLE comes from the H2 over UART). Selected with override_path in main/idf_component.yml."

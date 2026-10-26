@@ -1,0 +1,13 @@
+# Diagnostics only (not for normal use): the H2's log on its own USB port (USB-Serial-JTAG, the board's "USB"
+# socket), so UART0 keeps carrying only Spinel. Build with
+#   idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.usblog" build
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
+CONFIG_BOOTLOADER_LOG_LEVEL_INFO=y
+CONFIG_ESP_SYSTEM_PANIC_PRINT_REBOOT=y
+# Without a UART console nobody routes UART0 to its pins; ot_rcp uses UART_PIN_NO_CHANGE by default, so Spinel
+# stays mute (found 2026-10-20). The H2's UART0 pins: TX GPIO24, RX GPIO23 (the board's "TX"/"RX").
+CONFIG_OPENTHREAD_UART_PIN_MANUAL=y
+CONFIG_OPENTHREAD_UART_RX_PIN=23
+CONFIG_OPENTHREAD_UART_TX_PIN=24

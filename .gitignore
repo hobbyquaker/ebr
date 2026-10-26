@@ -1,0 +1,18 @@
+# ESP-IDF build output and generated configuration (sdkconfig may hold the Thread dataset — never commit it)
+build/
+managed_components/
+sdkconfig
+sdkconfig.old
+dependencies.lock
+# logs of local builds and flashing
+*.log
+# local secrets
+*.secret
+.env
+
+# rendered UI previews
+firmware/tools/ui_preview/out/
+__pycache__/
+# H2 diagnostic build (rcp_h2/sdkconfig.defaults.usblog)
+build_diag/
+sdkconfig.diag

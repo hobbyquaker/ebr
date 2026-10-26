@@ -1,0 +1,21 @@
+# ours: the H2 is the Thread radio (Spinel on UART0, as ot_rcp) and the Bluetooth LE controller for the P4
+# (HCI on UART1) at the same time — BLE for Matter pairing, see notes/matter-device.md ("Plan")
+CONFIG_IDF_TARGET="esp32h2"
+CONFIG_BT_ENABLED=y
+CONFIG_BT_CONTROLLER_ONLY=y
+CONFIG_BT_LE_HCI_INTERFACE_USE_UART=y
+CONFIG_BT_LE_HCI_UART_PORT=1
+# H2 board pins "10" (RX, from P4 GPIO22) and "11" (TX, to P4 GPIO23)
+CONFIG_BT_LE_HCI_UART_RX_PIN=10
+CONFIG_BT_LE_HCI_UART_TX_PIN=11
+CONFIG_BT_LE_HCI_UART_BAUD=115200
+# 802.15.4 and BLE share the radio
+CONFIG_ESP_COEX_SW_COEXIST_ENABLE=y
+# The H2's HCI UART (no-DMA mode) loses packets that do not fit its 128-byte hardware FIFO in one piece (found
+# 2026-10-20: indications up to 100 bytes pass, 140 bytes are lost). The controller reports this ACL size to the
+# host, which then fragments: 1 + 4 + 100 = 105 bytes per UART packet.
+CONFIG_BT_LE_ACL_BUF_SIZE=100
+# Not the packet but the burst: the host sends fragments back to back, and more than ~130 bytes in a row overflow
+# the H2's UART FIFO (2026-10-20: 116-byte indications pass, 120 fail even fragmented to 100). With one buffer the
+# host waits for each Number of Completed Packets, so a burst is at most one packet (105 bytes).
+CONFIG_BT_LE_ACL_BUF_COUNT=1
